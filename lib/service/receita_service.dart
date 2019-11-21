@@ -1,18 +1,19 @@
 class ReceitaService {
 
-  ReceitaService(this._api);
+  ReceitaService(this._uri);
 
-  String _urlService = "192.168.31.227";
-  String _api;
-  String _port = ":8080";
+  String _urlService = "aw-receita-api.herokuapp.com";
+  String _uri;
+  String _protocol = "https";
+  String _port = "";
 
 
   String url() {
-    return "http://$_urlService$_port/receita";
+    return "$_protocol://$_urlService$_port/receita";
   }
 
   String urlApi() {
-    return url() + _api;
+    return url() + _uri;
   }
 
   Map<String, String> getHeaders(){
