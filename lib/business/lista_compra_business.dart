@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http_auth/http_auth.dart' as http_auth;
+import 'package:receita/exception/app_exception.dart';
 import 'package:receita/model/lista_compra.dart';
 import 'package:receita/service/receita_service.dart';
+import 'package:receita/util/config.dart';
 
 import '../model/produto.dart';
 
@@ -14,7 +17,9 @@ class ListaCompraBusiness {
   Future<List<Produto>> obterProdutos() async {
     http.Response response;
 
-    response = await _client.get(receitaService.urlApi());
+    response = await _client
+        .get(receitaService.urlApi())
+        .timeout(Duration(seconds: 2));
 
     return json.decode(response.body);
   }
@@ -22,16 +27,21 @@ class ListaCompraBusiness {
   Future<Produto> obterProduto(int idProduto) async {
     http.Response response;
 
-    response =
-        await _client.get(receitaService.urlApi() + "/" + idProduto.toString());
+    response = await _client
+        .get(receitaService.urlApi() + "/" + idProduto.toString())
+        .timeout(Duration(seconds: 2));
 
     return Produto.fromJson(json.decode(response.body));
   }
 
-  salvarProduto(recProduto) async {
+  salvarListaCompra(ListaCompra listaCompra) async {
     http.Response response;
 
-    response = await _client.post(receitaService.urlApi());
+    response = await _client
+        .post(receitaService.urlApi(), headers: receitaService.getHeaders(), body: listaCompra.toJson().toString())
+        .timeout(Config.SERVICE_TIMEOUT);
+
+    _validarStatusCode(response);
 
     return json.decode(response.body);
   }
@@ -39,38 +49,38 @@ class ListaCompraBusiness {
   Future<List<ListaCompra>> obterListaComprasApi() async {
     http.Response response;
 
-    response = await _client.get(receitaService.urlApi());
+    response = await _client
+        .get(receitaService.urlApi())
+        .timeout(Config.SERVICE_TIMEOUT);
 
-    return (json.decode(response.body) as List).map((i) => ListaCompra.fromJson(i)).toList();
+    _validarStatusCode(response);
+    return (json.decode(response.body) as List)
+        .map((i) => ListaCompra.fromJson(i))
+        .toList();
+
   }
 
-  List<ListaCompra> obterListaCompras() {
-    //http.Response response;
+  Future<ListaCompra> obterListaCompra(int idListaCompra) async {
+    http.Response response;
 
-    //response = await _client.get(receitaService.urlApi());
+    response = await _client
+        .get(receitaService.urlApi())
+        .timeout(Config.SERVICE_TIMEOUT);
 
-     //return json.decode(response.body);
-    List<ListaCompra> list = List();
+    _validarStatusCode(response);
+      return json.decode(response.body).map((i) => ListaCompra.fromJson(i));
+  }
 
-    Produto produto1 = Produto();
-    Produto produto2 = Produto();
-    produto1.nome = "Queijo";
-    produto2.nome = "Frango";
+  _validarStatusCode(response) {
+    if (response.statusCode == HttpStatus.ok)
+      return true;
 
-    ListaCompra listaCompra = ListaCompra();
+    if (response.statusCode == HttpStatus.badRequest) {
+      var mensagem = json.decode(response.body)[0]['mensagemUsuario'];
+      throw new AppException("Bad Request",mensagem);
 
-    listaCompra.idListaCompra = 1;
-    listaCompra.descricao = "Lasanha";
-    listaCompra.produtos.add(produto1);
-    listaCompra.produtos.add(produto2);
-    list.add(listaCompra);
+    }
 
-
-    ListaCompra listaCompra2 = ListaCompra();
-    listaCompra2.descricao = "Feijoada";
-
-    list.add(listaCompra2);
-
-    return list;
+    throw new AppException("Erro Genérico", "Ops, ocorreu um erro ao realizar a busca!");
   }
 }

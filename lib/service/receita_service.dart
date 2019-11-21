@@ -1,6 +1,3 @@
-import 'package:http_auth/http_auth.dart';
-import 'package:http_auth/http_auth.dart' as http_auth;
-
 class ReceitaService {
 
   ReceitaService(this._api);
@@ -18,4 +15,7 @@ class ReceitaService {
     return url() + _api;
   }
 
+  Map<String, String> getHeaders(){
+    return {"Content-type": "application/json"};
+  }
 }

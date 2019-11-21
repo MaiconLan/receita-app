@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:receita/business/lista_compra_business.dart';
 import 'package:receita/business/produto_business.dart';
 import 'package:receita/model/lista_compra.dart';
-import 'package:receita/model/produto.dart';
-import 'package:receita/ui/produto_page.dart';
 
-import 'lista_compra_page.dart';
+import 'listacompra/cadastro_lista_compra_page.dart';
+import 'listacompra/lista_compra_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,6 +21,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Receitas e Lista de Compras"),
+        backgroundColor: Colors.deepOrangeAccent,
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
@@ -48,26 +48,16 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _mostrarProdutoPage({Produto produto}) async {
+  void _mostrarProdutoPage({ListaCompra listaCompra}) async {
     final recProduto = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ProdutoPage(
-                  produto: produto,
+            builder: (context) => CadastroListaCompraPage(
+                  listaCompra
                 )));
 
     if (recProduto != null) {
       await produtoBusiness.salvarProduto(recProduto);
-      _atualizarListaCompras();
-    }
-  }
-
-  void _mostrarListaCompraPage({ListaCompra listaCompra}) async {
-    final recListaCompra = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ListaCompraPage()));
-
-    if (recListaCompra != null) {
-      await produtoBusiness.salvarProduto(recListaCompra);
       _atualizarListaCompras();
     }
   }

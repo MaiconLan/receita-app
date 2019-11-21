@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:receita/business/lista_compra_business.dart';
 import 'package:receita/model/lista_compra.dart';
 
+import 'cadastro_lista_compra_page.dart';
+
 class ListaCompraPage extends StatefulWidget {
   @override
   _ListaCompraPageState createState() => _ListaCompraPageState();
@@ -12,15 +14,20 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
   ListaCompraBusiness _listaCompraBusiness = ListaCompraBusiness();
   List<ListaCompra> listaCompras = List();
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: IconButton(
-          icon: Icon(Icons.refresh),
+        key: _scaffoldKey,
+        backgroundColor: Colors.white,
+        floatingActionButton: FloatingActionButton(
+          tooltip: "Adicionar",
+          focusColor: Colors.green,
+          child: Icon(Icons.add_circle),
+          backgroundColor: Colors.blue,
           onPressed: () {
-            setState(() {
-              carregarListaCompras();
-            });
+            mostrarListaCompraPage(listaCompra: ListaCompra());
           },
         ),
         body: ListView.builder(
@@ -33,7 +40,22 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
   }
 
   carregarListaCompras() async {
-    listaCompras = await _listaCompraBusiness.obterListaComprasApi();
+    try {
+      listaCompras =
+          await _listaCompraBusiness.obterListaComprasApi().whenComplete(() {
+        setState(() {});
+      });
+    } catch (e) {
+      _tratarErro(e.toString());
+      listaCompras.clear();
+    }
+  }
+
+  _tratarErro(String error) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+      content: new Text(error),
+      duration: new Duration(seconds: 4),
+    ));
   }
 
   Widget listaToWidget(ListaCompra listaCompra) {
@@ -48,6 +70,7 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
   Widget _listaCompraCard(BuildContext context, int index) {
     return GestureDetector(
       child: Card(
+        color: Colors.deepOrangeAccent,
         margin: EdgeInsets.all(10.0),
         child: Padding(
           padding: EdgeInsets.all(10.0),
@@ -64,11 +87,11 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      listaCompras[index].idListaCompra.toString() +
-                          " - " +
-                          listaCompras[index].descricao,
+                      listaCompras[index].descricao,
                       style: TextStyle(
-                          fontSize: 20.0, fontWeight: FontWeight.bold),
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                   ],
                 ),
@@ -77,7 +100,31 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
           ),
         ),
       ),
-      onTap: () {},
+      onTap: () {
+        mostrarListaCompraPage(listaCompra: listaCompras[index]);
+      },
     );
+  }
+
+  void mostrarListaCompraPage({ListaCompra listaCompra}) async {
+    final recListaCompra = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => CadastroListaCompraPage(listaCompra)));
+
+    if (recListaCompra != null) {
+      try {
+        await _listaCompraBusiness.salvarListaCompra(recListaCompra);
+      } catch (e, s) {
+        print(s.toString());
+        _tratarErro(e.toString());
+      }
+
+      carregarListaCompras();
+    }
+  }
+
+  _ListaCompraPageState() {
+    carregarListaCompras();
   }
 }

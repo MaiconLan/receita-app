@@ -4,7 +4,6 @@ class Produto {
   String descricao;
   Tipo tipo;
 
-
   Produto();
 
   Produto.fromJson(Map<String, dynamic> json)
@@ -13,12 +12,11 @@ class Produto {
         descricao = json['descricao'],
         tipo = Tipo.fromJson(json['tipo']);
 
-
   Map<String, dynamic> toJson() => {
-        'idProduto': idProduto,
-        'nome': nome,
-        'descricao': descricao,
-        'tipo': tipo.toJson(),
+        '{\"idProduto\"': '$idProduto',
+        '\"nome\"': '$nome',
+        '\"descricao\"': '$descricao',
+        '\"tipo\"': '${tipo.toJson()}}',
       };
 }
 
@@ -31,7 +29,7 @@ class Tipo {
         nome = json['nome'];
 
   Map<String, dynamic> toJson() => {
-        'idTipo': idTipo,
-        'nome': nome,
+        '{\"idTipo\"': idTipo,
+        '\"nome\"': nome + '}',
       };
 }
