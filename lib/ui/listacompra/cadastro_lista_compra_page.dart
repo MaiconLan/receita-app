@@ -16,15 +16,16 @@ class CadastroListaCompraPage extends StatefulWidget {
 
 class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
   ListaCompraBusiness listaCompraBusiness = ListaCompraBusiness();
-  List<Widget> _produtos = List();
+  List<Produto> _produtos = List();
+  List<Widget> _produtosWidget = List();
 
-  final _nameFocus = FocusNode();
+  final _formKey = GlobalKey<FormState>();
+
   bool _editado = false;
 
   ListaCompra _editedListaCompra;
 
   final _descricaoListaCompraController = TextEditingController();
-  final _descricaoProdutoController = TextEditingController();
 
   Map<int, TextEditingController> nomeProdutoControllers = Map();
   Map<int, TextEditingController> descricaoProdutoControllers = Map();
@@ -38,7 +39,6 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
     } else {
       _editedListaCompra = widget.listaCompra;
       _descricaoListaCompraController.text = _editedListaCompra.descricao;
-      _descricaoProdutoController.text = "";
     }
 
     _atualizarListaProdutos();
@@ -49,91 +49,94 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: _requestPop,
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.red,
-            title:
-                Text(_editedListaCompra.descricao ?? "Nova lista de compras"),
-            centerTitle: true,
-          ),
-          floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.save),
-            backgroundColor: Colors.red,
-            onPressed: () {
-              if (_editedListaCompra.descricao != null &&
-                  _editedListaCompra.descricao.isNotEmpty) {
-                Navigator.pop(context, _editedListaCompra);
-              } else {
-                FocusScope.of(context).requestFocus(_nameFocus);
-              }
-            },
-          ),
-          body: SingleChildScrollView(
-              padding: EdgeInsets.all(10.0),
-              child: Column(children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text(
-                      "Lista de Compras",
-                      style: TextStyle(
-                          fontSize: 26.0,
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    TextField(
-                      controller: _descricaoListaCompraController,
-                      focusNode: _nameFocus,
-                      decoration: InputDecoration(
-                          labelText: "Nome da lista",
-                          labelStyle:
-                              TextStyle(fontSize: 22.0, color: Colors.red)),
-                      onChanged: (text) {
-                        _editado = true;
-                        setState(() {
-                          _editedListaCompra.descricao = text;
-                        });
-                      },
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20.0),
-                      child: Text(
-                        "Produtos",
-                        style: TextStyle(
-                            fontSize: 26.0,
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: _produtos,
-                ),
-                Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(top: 20.0),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.add,
-                          color: Colors.deepOrangeAccent,
-                          size: 30.0,
+        child: Form(
+            key: _formKey,
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.red,
+                title: Text(
+                    _editedListaCompra.descricao ?? "Nova lista de compras"),
+                centerTitle: true,
+              ),
+              floatingActionButton: FloatingActionButton(
+                child: Icon(Icons.save),
+                backgroundColor: Colors.red,
+                onPressed: () {
+                  if (_formKey.currentState.validate()) {
+                    _editedListaCompra.descricao = _descricaoListaCompraController.text;
+                    _editedListaCompra.produtos = _produtos;
+                    Navigator.pop(context, _editedListaCompra);
+                  }
+                },
+              ),
+              body: SingleChildScrollView(
+                  padding: EdgeInsets.all(10.0),
+                  child: Column(children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Text(
+                          "Lista de Compras",
+                          style: TextStyle(
+                              fontSize: 26.0,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold),
                         ),
-                        splashColor: Colors.blue,
-                        highlightColor: Colors.red,
-                        onPressed: () {
-                          setState(() {
-                            _produtos.add(getNomeProdutoTextField(Produto()));
-                          });
-                        },
-                        color: Colors.green,
-                        focusColor: Colors.purple,
-                      ),
-                    )
-                  ],
-                ),
-              ])),
-        ));
+                        TextFormField(
+                          controller: _descricaoListaCompraController,
+                          validator: (value) => value.isEmpty
+                              ? 'Insira a descricao da lista'
+                              : null,
+                          decoration: InputDecoration(
+                              labelText: "Nome da lista",
+                              labelStyle:
+                                  TextStyle(fontSize: 22.0, color: Colors.red)),
+                          onSaved: (text) {
+                            _editado = true;
+                            setState(() {
+                              _editedListaCompra.descricao = text;
+                            });
+                          },
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                          child: Text(
+                            "Produtos",
+                            style: TextStyle(
+                                fontSize: 26.0,
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: _produtosWidget,
+                    ),
+                    Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.add,
+                              color: Colors.deepOrangeAccent,
+                              size: 30.0,
+                            ),
+                            splashColor: Colors.blue,
+                            highlightColor: Colors.red,
+                            onPressed: () {
+                              setState(() {
+                                _produtosWidget.add(getNomeProdutoTextField(Produto()));
+                              });
+                            },
+                            color: Colors.green,
+                            focusColor: Colors.purple,
+                          ),
+                        )
+                      ],
+                    ),
+                  ])),
+            )));
   }
 
   Widget getNomeProdutoTextField(Produto produto) {
@@ -146,7 +149,7 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
     }
 
     return TextFormField(
-      validator: (nome) => nome.isEmpty ? 'Insira o nome do produto' : null,
+      validator: (value) => value.isEmpty ? 'Insira o nome do produto' : null,
       controller: _nomeProdutoController,
       decoration: InputDecoration(
           labelText: "Nome do produto",
@@ -178,11 +181,15 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
   }
 
   _atualizarListaProdutos() {
+    _produtos.clear();
+    _editedListaCompra.produtos.forEach((produto) => _produtos.add(produto));
+  }
 
+  _atualizarProdutosWidget() {
+    _produtosWidget.clear();
     for (Produto produto in _editedListaCompra.produtos) {
-      _produtos.add(getNomeProdutoTextField(produto));
+      _produtosWidget.add(getNomeProdutoTextField(produto));
     }
-
   }
 
   Future<bool> _requestPop() {

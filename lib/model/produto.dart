@@ -1,3 +1,6 @@
+import 'package:json_annotation/json_annotation.dart';
+
+@JsonSerializable()
 class Produto {
   int idProduto;
   String nome;
@@ -12,11 +15,11 @@ class Produto {
         descricao = json['descricao'],
         tipo = Tipo.fromJson(json['tipo']);
 
-  Map<String, dynamic> toJson() => {
-        '{\"idProduto\"': '$idProduto',
-        '\"nome\"': '$nome',
-        '\"descricao\"': '$descricao',
-        '\"tipo\"': '${tipo.toJson()}}',
+  Map toJson() => {
+        'idProduto': idProduto,
+        'nome': nome,
+        'descricao': descricao,
+        'tipo': tipo,
       };
 }
 
@@ -28,8 +31,8 @@ class Tipo {
       : idTipo = json['idTipo'],
         nome = json['nome'];
 
-  Map<String, dynamic> toJson() => {
-        '{\"idTipo\"': idTipo,
-        '\"nome\"': nome + '}',
+  Map toJson() => {
+        'idTipo': idTipo,
+        'nome': nome,
       };
 }

@@ -1,10 +1,12 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:receita/model/produto.dart';
 
+
+@JsonSerializable()
 class ListaCompra {
   int idListaCompra;
   String descricao;
   List<Produto> produtos = List();
-
 
   ListaCompra();
 
@@ -14,9 +16,15 @@ class ListaCompra {
         produtos =
             (json['produtos'] as List).map((i) => Produto.fromJson(i)).toList();
 
-  Map<String, dynamic> toJson() => {
-        '\"idListaCompra\"': '\"$idListaCompra\"',
-        '\"descricao\"': '\"$descricao\"',
-        '\"produtos\"': '[\"${produtos.map((i) => i.toJson())}\"]',
-      };
+// Map<String, dynamic> toJson() => {
+//       '\"idListaCompra\"': '\"$idListaCompra\"',
+//       '\"descricao\"': '\"$descricao\"',
+//       '\"produtos\"': '[\"${produtos.map((i) => i.toJson())}\"]',
+//     };
+
+  Map toJson() => {
+    'idListaCompra': idListaCompra,
+    'descricao': descricao,
+    'produtos': produtos,
+  };
 }

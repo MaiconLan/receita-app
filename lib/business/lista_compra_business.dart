@@ -37,8 +37,11 @@ class ListaCompraBusiness {
   salvarListaCompra(ListaCompra listaCompra) async {
     http.Response response;
 
+
+    print(jsonEncode(listaCompra));
+
     response = await _client
-        .post(receitaService.urlApi(), headers: receitaService.getHeaders(), body: listaCompra.toJson().toString())
+        .post(receitaService.urlApi(), headers: receitaService.getHeaders(), body: jsonEncode(listaCompra))
         .timeout(Config.SERVICE_TIMEOUT);
 
     _validarStatusCode(response);
@@ -76,7 +79,7 @@ class ListaCompraBusiness {
       return true;
 
     if (response.statusCode == HttpStatus.badRequest) {
-      var mensagem = json.decode(response.body)[0]['mensagemUsuario'];
+      var mensagem = jsonDecode(response.body);
       throw new AppException("Bad Request",mensagem);
 
     }
