@@ -100,6 +100,33 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
           ),
         ),
       ),
+      onHorizontalDragEnd: (detail) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("Remover lista de compras?"),
+                content: Text("Tem certeza que deseja remover?!"),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text("Cancelar"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  FlatButton(
+                    child: Text("Sim"),
+                    onPressed: () {
+                      _listaCompraBusiness.removerReceita(listaCompras[index].idListaCompra);
+                      Navigator.pop(context);
+                      carregarListaCompras();
+
+                    },
+                  )
+                ],
+              );
+            });
+      },
       onTap: () {
         mostrarListaCompraPage(listaCompra: listaCompras[index]);
       },
@@ -107,20 +134,18 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
   }
 
   void mostrarListaCompraPage({ListaCompra listaCompra}) async {
-    final recListaCompra = await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => CadastroListaCompraPage(listaCompra)));
+    try {
+      final recListaCompra = await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => CadastroListaCompraPage(listaCompra)));
 
-    if (recListaCompra != null) {
-      try {
-        await _listaCompraBusiness.salvarListaCompra(recListaCompra);
-      } catch (e, s) {
-        print(s.toString());
-        _tratarErro(e.toString());
+      if (recListaCompra != null) {
+        carregarListaCompras();
       }
-
-      carregarListaCompras();
+    } catch (e, s) {
+      print(s.toString());
+      _tratarErro(e.toString());
     }
   }
 

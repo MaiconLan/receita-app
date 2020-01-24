@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:receita/business/lista_compra_business.dart';
 import 'package:receita/model/lista_compra.dart';
 import 'package:receita/model/produto.dart';
-import 'package:receita/ui/util/ui_utils.dart';
 
 class CadastroListaCompraPage extends StatefulWidget {
   final ListaCompra listaCompra;
@@ -16,7 +15,6 @@ class CadastroListaCompraPage extends StatefulWidget {
 
 class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
   ListaCompraBusiness listaCompraBusiness = ListaCompraBusiness();
-  List<Produto> _produtos = List();
   List<Widget> _produtosWidget = List();
 
   final _formKey = GlobalKey<FormState>();
@@ -27,8 +25,8 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
 
   final _descricaoListaCompraController = TextEditingController();
 
-  Map<int, TextEditingController> nomeProdutoControllers = Map();
-  Map<int, TextEditingController> descricaoProdutoControllers = Map();
+  Map<dynamic, TextEditingController> nomeProdutoControllers = Map();
+  Map<dynamic, TextEditingController> descricaoProdutoControllers = Map();
 
   @override
   void initState() {
@@ -41,7 +39,7 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
       _descricaoListaCompraController.text = _editedListaCompra.descricao;
     }
 
-    _atualizarListaProdutos();
+    _carregarProdutosFromListaCompra();
     _editado = false;
   }
 
@@ -63,8 +61,11 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
                 backgroundColor: Colors.red,
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
-                    _editedListaCompra.descricao = _descricaoListaCompraController.text;
-                    _editedListaCompra.produtos = _produtos;
+                    _editedListaCompra.descricao =
+                        _descricaoListaCompraController.text;
+
+                    listaCompraBusiness.salvarListaCompra(_editedListaCompra);
+
                     Navigator.pop(context, _editedListaCompra);
                   }
                 },
@@ -126,7 +127,10 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
                             highlightColor: Colors.red,
                             onPressed: () {
                               setState(() {
-                                _produtosWidget.add(getNomeProdutoTextField(Produto()));
+                                var produto = Produto();
+                                _editado = true;
+                                _editedListaCompra.produtos.add(produto);
+                                _atualizarProdutosWidget();
                               });
                             },
                             color: Colors.green,
@@ -140,26 +144,22 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
   }
 
   Widget getNomeProdutoTextField(Produto produto) {
-    final _nomeProdutoController = TextEditingController();
-
-    if (produto.idProduto != null) {
-      nomeProdutoControllers.putIfAbsent(
-          produto.idProduto, () => _nomeProdutoController);
-      _nomeProdutoController.text = produto.nome;
-    }
-
-    return TextFormField(
-      validator: (value) => value.isEmpty ? 'Insira o nome do produto' : null,
-      controller: _nomeProdutoController,
+    produto.controller.text = produto.nome;
+    return TextField(
+      controller: produto.controller,
       decoration: InputDecoration(
           labelText: "Nome do produto",
           labelStyle: TextStyle(fontSize: 22.0, color: Colors.red)),
-      onSaved: (text) {
-        _editado = true;
+      onChanged: (value) {
+        setState(() {
+          _editado = true;
+          produto.nome = value;
+        });
       },
     );
   }
 
+  @deprecated
   TextFormField getDescricaoProdutoTextField(Produto produto) {
     final _descricaoProdutoController = TextEditingController();
 
@@ -180,13 +180,23 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
     );
   }
 
-  _atualizarListaProdutos() {
-    _produtos.clear();
-    _editedListaCompra.produtos.forEach((produto) => _produtos.add(produto));
+  _carregarProdutosFromListaCompra() {
+    _produtosWidget.clear();
+    if (_editedListaCompra.produtos == null)
+      _editedListaCompra.produtos = List();
+
+    setState(() {
+      for (Produto produto in _editedListaCompra.produtos) {
+        _produtosWidget.add(getNomeProdutoTextField(produto));
+      }
+    });
   }
 
   _atualizarProdutosWidget() {
     _produtosWidget.clear();
+    if (_editedListaCompra.produtos == null)
+      _editedListaCompra.produtos = List();
+
     for (Produto produto in _editedListaCompra.produtos) {
       _produtosWidget.add(getNomeProdutoTextField(produto));
     }
@@ -210,6 +220,7 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
                 FlatButton(
                   child: Text("Sim"),
                   onPressed: () {
+
                     Navigator.pop(context);
                     Navigator.pop(context);
                   },

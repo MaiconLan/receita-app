@@ -1,30 +1,35 @@
-import 'package:json_annotation/json_annotation.dart';
+// To parse this JSON data, do
+//
+//     final listaCompra = listaCompraFromJson(jsonString);
+
+import 'dart:convert';
+
 import 'package:receita/model/produto.dart';
 
-
-@JsonSerializable()
 class ListaCompra {
   int idListaCompra;
   String descricao;
-  List<Produto> produtos = List();
+  List<Produto> produtos;
 
-  ListaCompra();
+  ListaCompra({
+    this.idListaCompra,
+    this.descricao,
+    this.produtos,
+  });
 
-  ListaCompra.fromJson(Map<String, dynamic> json)
-      : idListaCompra = json['idListaCompra'],
-        descricao = json['descricao'],
-        produtos =
-            (json['produtos'] as List).map((i) => Produto.fromJson(i)).toList();
+  factory ListaCompra.fromRawJson(String str) => ListaCompra.fromJson(json.decode(str));
 
-// Map<String, dynamic> toJson() => {
-//       '\"idListaCompra\"': '\"$idListaCompra\"',
-//       '\"descricao\"': '\"$descricao\"',
-//       '\"produtos\"': '[\"${produtos.map((i) => i.toJson())}\"]',
-//     };
+  String toRawJson() => json.encode(toJson());
 
-  Map toJson() => {
-    'idListaCompra': idListaCompra,
-    'descricao': descricao,
-    'produtos': produtos,
+  factory ListaCompra.fromJson(Map<String, dynamic> json) => ListaCompra(
+    idListaCompra: json["idListaCompra"] == null ? null : json["idListaCompra"],
+    descricao: json["descricao"] == null ? null : json["descricao"],
+    produtos: json["produtos"] == null ? null : List<Produto>.from(json["produtos"].map((x) => Produto.fromJson(x))),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "idListaCompra": idListaCompra == null ? null : idListaCompra,
+    "descricao": descricao == null ? null : descricao,
+    "produtos": produtos == null ? null : List<dynamic>.from(produtos.map((x) => x.toJson())),
   };
 }

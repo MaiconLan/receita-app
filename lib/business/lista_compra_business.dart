@@ -37,12 +37,13 @@ class ListaCompraBusiness {
   salvarListaCompra(ListaCompra listaCompra) async {
     http.Response response;
 
-
-    print(jsonEncode(listaCompra));
-
-    response = await _client
-        .post(receitaService.urlApi(), headers: receitaService.getHeaders(), body: jsonEncode(listaCompra))
-        .timeout(Config.SERVICE_TIMEOUT);
+    if(listaCompra.idListaCompra == null)
+      response = await _client.post(receitaService.urlApi(), headers: receitaService.getHeaders(), body: jsonEncode(listaCompra))
+                              .timeout(Config.SERVICE_TIMEOUT);
+    else
+      response = await _client
+          .put(receitaService.urlApi() + "/${listaCompra.idListaCompra} ", headers: receitaService.getHeaders(), body: jsonEncode(listaCompra))
+          .timeout(Config.SERVICE_TIMEOUT);
 
     _validarStatusCode(response);
 
@@ -75,15 +76,25 @@ class ListaCompraBusiness {
   }
 
   _validarStatusCode(response) {
-    if (response.statusCode == HttpStatus.ok)
+    if (response.statusCode == HttpStatus.ok || response.statusCode == HttpStatus.created)
       return true;
 
     if (response.statusCode == HttpStatus.badRequest) {
       var mensagem = jsonDecode(response.body);
-      throw new AppException("Bad Request",mensagem);
+      throw new AppException("Bad Request", mensagem);
 
     }
 
     throw new AppException("Erro Genérico", "Ops, ocorreu um erro ao realizar a busca!");
+  }
+
+  Future removerReceita(int idReceita) async {
+    http.Response response;
+
+    response = await _client
+        .delete(receitaService.urlApi() + "/$idReceita")
+        .timeout(Config.SERVICE_TIMEOUT);
+
+    _validarStatusCode(response);
   }
 }
