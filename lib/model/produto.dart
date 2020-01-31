@@ -11,6 +11,7 @@ class Produto {
   String nome;
   String descricao;
   Tipo tipo;
+  bool check;
 
   TextEditingController controller = TextEditingController();
 

@@ -34,7 +34,7 @@ class ListaCompraBusiness {
     return Produto.fromJson(json.decode(response.body));
   }
 
-  salvarListaCompra(ListaCompra listaCompra) async {
+  Future salvarListaCompra(ListaCompra listaCompra) async {
     http.Response response;
 
     if(listaCompra.idListaCompra == null)

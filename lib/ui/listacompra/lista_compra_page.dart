@@ -30,16 +30,45 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
             mostrarListaCompraPage(listaCompra: ListaCompra());
           },
         ),
-        body: ListView.builder(
-            scrollDirection: Axis.vertical,
-            itemCount: listaCompras.length,
-            padding: EdgeInsets.all(10.0),
-            itemBuilder: (context, index) {
-              return _listaCompraCard(context, index);
-            }));
+        body: FutureBuilder<List<ListaCompra>>(
+          future: _listaCompraBusiness.obterListaComprasApi(),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.none:
+              case ConnectionState.waiting:
+                return Center(
+                  child: Text(
+                    "Carregando Dados...",
+                    style: TextStyle(
+                        color: Colors.deepOrangeAccent, fontSize: 25.0),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              default:
+                if (snapshot.hasError) {
+                  return Center(
+                      child: Text(
+                    "Erro ao Carregar os Dados",
+                    style: TextStyle(color: Colors.redAccent, fontSize: 25.0),
+                    textAlign: TextAlign.center,
+                  ));
+                } else {
+                  return _listaComprasCard(context, snapshot.data);
+                }
+            }
+          },
+        )
+        // ListView.builder(
+        //     scrollDirection: Axis.vertical,
+        //     itemCount: listaCompras.length,
+        //     padding: EdgeInsets.all(10.0),
+        //     itemBuilder: (context, index) {
+        //       return _listaCompraCard(context, index);
+        //     })
+        );
   }
 
-  carregarListaCompras() async {
+  Future carregarListaCompras() async {
     try {
       listaCompras =
           await _listaCompraBusiness.obterListaComprasApi().whenComplete(() {
@@ -67,7 +96,22 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
     );
   }
 
-  Widget _listaCompraCard(BuildContext context, int index) {
+  Widget _listaComprasCard(
+      BuildContext context, List<ListaCompra> listaCompras) {
+    List<Widget> widgets = List();
+
+    for (var value in listaCompras) {
+      widgets.add(_listaCompraCard(context, value));
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: widgets,
+      ),
+    );
+  }
+
+  Widget _listaCompraCard(BuildContext context, ListaCompra listaCompra) {
     return GestureDetector(
       child: Card(
         color: Colors.deepOrangeAccent,
@@ -76,20 +120,15 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
           padding: EdgeInsets.all(10.0),
           child: Row(
             children: <Widget>[
-              Container(
-                width: 100.0,
-                height: 100.0,
-                decoration: BoxDecoration(shape: BoxShape.circle),
-              ),
               Padding(
-                padding: EdgeInsets.only(left: 10.0),
+                padding: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 10.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      listaCompras[index].descricao,
+                      listaCompra.descricao,
                       style: TextStyle(
-                          fontSize: 20.0,
+                          fontSize: 25.0,
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
                     ),
@@ -109,18 +148,30 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
                 content: Text("Tem certeza que deseja remover?!"),
                 actions: <Widget>[
                   FlatButton(
-                    child: Text("Cancelar"),
+                    splashColor: Colors.red,
+                    color: Colors.redAccent,
+                    child: Text(
+                      "Cancelar",
+                      style: TextStyle(color: Colors.white, fontSize: 20.0),
+                      textAlign: TextAlign.left,
+                    ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
                   FlatButton(
-                    child: Text("Sim"),
+                    splashColor: Colors.green,
+                    color: Colors.greenAccent,
+                    child: Text(
+                      "Sim",
+                      textAlign: TextAlign.right,
+                      style: TextStyle(color: Colors.white, fontSize: 20.0),
+                    ),
                     onPressed: () {
-                      _listaCompraBusiness.removerReceita(listaCompras[index].idListaCompra);
+                      _listaCompraBusiness
+                          .removerReceita(listaCompra.idListaCompra);
                       Navigator.pop(context);
                       carregarListaCompras();
-
                     },
                   )
                 ],
@@ -128,7 +179,7 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
             });
       },
       onTap: () {
-        mostrarListaCompraPage(listaCompra: listaCompras[index]);
+        mostrarListaCompraPage(listaCompra: listaCompra);
       },
     );
   }

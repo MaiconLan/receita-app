@@ -53,18 +53,19 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
               appBar: AppBar(
                 backgroundColor: Colors.red,
                 title: Text(
-                    _editedListaCompra.descricao ?? "Nova lista de compras"),
+                    _editedListaCompra.idListaCompra == null ? "Nova lista" : "Editar lista"),
                 centerTitle: true,
               ),
               floatingActionButton: FloatingActionButton(
                 child: Icon(Icons.save),
-                backgroundColor: Colors.red,
-                onPressed: () {
+                backgroundColor: Colors.green,
+                onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     _editedListaCompra.descricao =
                         _descricaoListaCompraController.text;
 
-                    listaCompraBusiness.salvarListaCompra(_editedListaCompra);
+                    await listaCompraBusiness
+                        .salvarListaCompra(_editedListaCompra);
 
                     Navigator.pop(context, _editedListaCompra);
                   }
@@ -75,17 +76,16 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
                   child: Column(children: <Widget>[
                     Column(
                       children: <Widget>[
-                        Text(
-                          "Lista de Compras",
-                          style: TextStyle(
-                              fontSize: 26.0,
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold),
-                        ),
                         TextFormField(
+
+                          onEditingComplete: () {
+                            setState(() {
+                              _editado = true;
+                            });
+                          },
                           controller: _descricaoListaCompraController,
                           validator: (value) => value.isEmpty
-                              ? 'Insira a descricao da lista'
+                              ? 'Insira o nome da lista'
                               : null,
                           decoration: InputDecoration(
                               labelText: "Nome da lista",
@@ -118,23 +118,25 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
                         Padding(
                           padding: EdgeInsets.only(top: 20.0),
                           child: IconButton(
+                            iconSize: 10.0,
                             icon: Icon(
                               Icons.add,
-                              color: Colors.deepOrangeAccent,
+                              color: Colors.greenAccent,
                               size: 30.0,
                             ),
                             splashColor: Colors.blue,
                             highlightColor: Colors.red,
                             onPressed: () {
+                              var focusNode = new FocusNode();
+                              var produto = Produto();
+
                               setState(() {
-                                var produto = Produto();
                                 _editado = true;
-                                _editedListaCompra.produtos.add(produto);
-                                _atualizarProdutosWidget();
+                                _addProdutoWidget(produto);
+                                FocusScope.of(context).unfocus();
+                                FocusScope.of(context).requestFocus(focusNode);
                               });
                             },
-                            color: Colors.green,
-                            focusColor: Colors.purple,
                           ),
                         )
                       ],
@@ -143,20 +145,28 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
             )));
   }
 
-  Widget getNomeProdutoTextField(Produto produto) {
+  Widget getNomeProdutoTextField(Produto produto, {FocusNode focusNode}) {
     produto.controller.text = produto.nome;
-    return TextField(
-      controller: produto.controller,
-      decoration: InputDecoration(
-          labelText: "Nome do produto",
-          labelStyle: TextStyle(fontSize: 22.0, color: Colors.red)),
-      onChanged: (value) {
-        setState(() {
-          _editado = true;
-          produto.nome = value;
-        });
-      },
+    return GestureDetector(
+      onHorizontalDragEnd: _remove(),
+      child: TextField(
+        focusNode: focusNode,
+        controller: produto.controller,
+        decoration: InputDecoration(
+            labelText: "Nome do produto",
+            labelStyle: TextStyle(fontSize: 22.0, color: Colors.red)),
+        onChanged: (value) {
+          setState(() {
+            _editado = true;
+            produto.nome = value;
+          });
+        },
+      ),
     );
+  }
+
+  _remove(){
+
   }
 
   @deprecated
@@ -202,6 +212,11 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
     }
   }
 
+  _addProdutoWidget(Produto produto, {FocusNode focusNode}) {
+    _produtosWidget.add(getNomeProdutoTextField(produto, focusNode: focusNode));
+    _editedListaCompra.produtos.add(produto);
+  }
+
   Future<bool> _requestPop() {
     if (_editado) {
       showDialog(
@@ -212,15 +227,26 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
               content: Text("Se sair, as alterações serão desfeitas!"),
               actions: <Widget>[
                 FlatButton(
-                  child: Text("Cancelar"),
+                  splashColor: Colors.red,
+                  color: Colors.redAccent,
+                  child: Text(
+                    "Cancelar",
+                    style: TextStyle(color: Colors.white, fontSize: 20.0),
+                    textAlign: TextAlign.left,
+                  ),
                   onPressed: () {
                     Navigator.pop(context);
                   },
                 ),
                 FlatButton(
-                  child: Text("Sim"),
+                  splashColor: Colors.green,
+                  color: Colors.greenAccent,
+                  child: Text(
+                    "Sim",
+                    textAlign: TextAlign.right,
+                    style: TextStyle(color: Colors.white, fontSize: 20.0),
+                  ),
                   onPressed: () {
-
                     Navigator.pop(context);
                     Navigator.pop(context);
                   },
