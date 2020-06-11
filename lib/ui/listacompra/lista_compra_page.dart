@@ -27,7 +27,7 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
           child: Icon(Icons.add_circle),
           backgroundColor: Colors.blue,
           onPressed: () {
-            mostrarListaCompraPage(listaCompra: ListaCompra());
+            mostrarListaCompraPage();
           },
         ),
         body: FutureBuilder<List<ListaCompra>>(
@@ -167,8 +167,8 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
                       textAlign: TextAlign.right,
                       style: TextStyle(color: Colors.white, fontSize: 20.0),
                     ),
-                    onPressed: () {
-                      _listaCompraBusiness
+                    onPressed: () async {
+                      await _listaCompraBusiness
                           .removerReceita(listaCompra.idListaCompra);
                       Navigator.pop(context);
                       carregarListaCompras();

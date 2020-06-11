@@ -80,8 +80,7 @@ class ListaCompraBusiness {
       return true;
 
     if (response.statusCode == HttpStatus.badRequest) {
-      var mensagem = jsonDecode(response.body);
-      throw new AppException("Bad Request", mensagem);
+      throw new AppException("Bad Request", response.body);
 
     }
 

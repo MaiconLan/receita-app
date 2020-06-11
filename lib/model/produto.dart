@@ -11,15 +11,14 @@ class Produto {
   String nome;
   String descricao;
   Tipo tipo;
-  bool check;
-
-  TextEditingController controller = TextEditingController();
+  bool pego;
 
   Produto({
     this.idProduto,
     this.nome,
     this.descricao,
     this.tipo,
+    this.pego = false
   });
 
   factory Produto.fromRawJson(String str) => Produto.fromJson(json.decode(str));
@@ -31,6 +30,7 @@ class Produto {
     nome: json["nome"] == null ? null : json["nome"],
     descricao: json["descricao"] == null ? null : json["descricao"],
     tipo: json["tipo"] == null ? null : Tipo.fromJson(json["tipo"]),
+    pego: json["pego"] == null ? false : json["pego"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -38,6 +38,7 @@ class Produto {
     "nome": nome == null ? null : nome,
     "descricao": descricao == null ? null : descricao,
     "tipo": tipo == null ? null : tipo.toJson(),
+    "pego": pego == null ? false : pego,
   };
 }
 
