@@ -44,21 +44,20 @@ class Service {
 class LoggingInterceptor implements InterceptorContract {
   @override
   Future<RequestData> interceptRequest({RequestData data}) async {
-    print('REQUEST');
+    print('-----REQUEST-----');
     print('URL: ${data.url}');
+    print('METHOD: ${data.method}');
     print('HEADERS: ${data.headers}');
     print('BODY: ${data.body}');
-    print('-------');
     return data;
   }
 
   @override
   Future<ResponseData> interceptResponse({ResponseData data}) async {
-    print('RESPONSE');
+    print('-----RESPONSE-----');
     print('STATUS CODE : ${data.statusCode}');
     print('HEADERS: ${data.headers}');
     print('BODY: ${data.body}');
-    print('-------');
     return data;
   }
 }

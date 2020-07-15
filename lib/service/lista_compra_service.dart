@@ -42,6 +42,6 @@ class ListaCompraService extends Service {
   }
 
   Future remover(int idListaCompra) async {
-    await client().delete('/$idListaCompra', headers: getHeaders());
+    return await client().delete(urlEndpoint() + '/$idListaCompra', headers: getHeaders());
   }
 }

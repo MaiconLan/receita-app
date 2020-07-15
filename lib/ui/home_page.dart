@@ -16,7 +16,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Receitas e Lista de Compras"),
+        title: Center(
+          child: _icons.elementAt(_selectedIndex),
+        ),
         backgroundColor: Colors.deepOrangeAccent,
       ),
       body: Center(
@@ -25,11 +27,11 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_box), title: Text("Perfil")),
+              icon: Icon(Icons.shopping_cart), title: Text("Lista de Compras")),
           BottomNavigationBarItem(
               icon: Icon(Icons.receipt), title: Text("Receitas")),
           BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart), title: Text("Lista de Compras")),
+              icon: Icon(Icons.account_box), title: Text("Perfil")),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
@@ -48,15 +50,20 @@ class _HomePageState extends State<HomePage> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   static List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Perfil',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 1: Receitas',
-      style: optionStyle,
-    ),
     ListaCompraPage(),
+    Text(
+      'Index 2: Receitas',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 1: Perfil',
+      style: optionStyle,
+    ),
   ];
 
+  static List<Icon> _icons = <Icon>[
+    Icon(Icons.shopping_cart),
+    Icon(Icons.receipt),
+    Icon(Icons.account_box),
+  ];
 }

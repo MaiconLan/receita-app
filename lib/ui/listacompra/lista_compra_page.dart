@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:receita/business/lista_compra_business.dart';
+import 'package:receita/components/centered_message.dart';
+import 'package:receita/components/progress.dart';
 import 'package:receita/model/lista_compra.dart';
 
 import 'cadastro_lista_compra_page.dart';
@@ -33,29 +37,30 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
         body: FutureBuilder<List<ListaCompra>>(
           future: _listaCompraBusiness.getListaCompras(),
           builder: (context, snapshot) {
+            final List<ListaCompra> listaCompras = snapshot.data;
+
             switch (snapshot.connectionState) {
               case ConnectionState.none:
               case ConnectionState.waiting:
-                return Center(
-                  child: Text(
-                    "Carregando Dados...",
-                    style: TextStyle(
-                        color: Colors.deepOrangeAccent, fontSize: 25.0),
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              default:
-                if (snapshot.hasError) {
-                  return Center(
-                      child: Text(
-                    "Erro ao Carregar os Dados",
-                    style: TextStyle(color: Colors.redAccent, fontSize: 25.0),
-                    textAlign: TextAlign.center,
-                  ));
-                } else {
-                  return _listaComprasCard(context, snapshot.data);
+                return Progress(msg: 'Carregando Lista');
+                break;
+              case ConnectionState.done:
+                if (listaCompras.isNotEmpty) {
+                  return _listaComprasCard(context, listaCompras);
                 }
+                return CenteredMessage(
+                  'Nenhuma lista cadastrada',
+                  icon: Icons.remove_shopping_cart,
+                );
+                break;
+              default:
             }
+
+            return Center(
+                child: CenteredMessage(
+              'Não foi possível carregar a lista de compras',
+              icon: Icons.error,
+            ));
           },
         )
         // ListView.builder(
@@ -167,11 +172,11 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
                       textAlign: TextAlign.right,
                       style: TextStyle(color: Colors.white, fontSize: 20.0),
                     ),
-                    onPressed: () {
-                      _listaCompraBusiness
+                    onPressed: () async {
+                      await _listaCompraBusiness
                           .removerReceita(listaCompra.idListaCompra);
-                      Navigator.pop(context);
                       carregarListaCompras();
+                      Navigator.pop(context);
                     },
                   )
                 ],

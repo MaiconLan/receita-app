@@ -20,6 +20,6 @@ class ListaCompraBusiness {
   }
 
   Future removerReceita(int idListaCompra) async {
-    await _listaCompraService.remover(idListaCompra);
+    return await _listaCompraService.remover(idListaCompra);
   }
 }
