@@ -31,7 +31,7 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
           },
         ),
         body: FutureBuilder<List<ListaCompra>>(
-          future: _listaCompraBusiness.obterListaComprasApi(),
+          future: _listaCompraBusiness.getListaCompras(),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
@@ -71,7 +71,7 @@ class _ListaCompraPageState extends State<ListaCompraPage> {
   Future carregarListaCompras() async {
     try {
       listaCompras =
-          await _listaCompraBusiness.obterListaComprasApi().whenComplete(() {
+          await _listaCompraBusiness.getListaCompras().whenComplete(() {
         setState(() {});
       });
     } catch (e) {

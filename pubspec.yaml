@@ -29,6 +29,7 @@ dependencies:
   flutter_launcher_icons: ^0.7.0
   json_annotation: ^3.0.0
   json_serializable: ^3.2.3
+  http_interceptor: ^0.3.2
 
 dev_dependencies:
   flutter_test:

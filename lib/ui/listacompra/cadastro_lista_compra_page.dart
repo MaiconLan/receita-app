@@ -146,7 +146,7 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
   }
 
   Widget getNomeProdutoTextField(Produto produto, {FocusNode focusNode}) {
-    produto.controller.text = produto.nome;
+    produto.controller.text = produto.descricao;
     return GestureDetector(
       onHorizontalDragEnd: _remove(),
       child: TextField(
@@ -158,7 +158,7 @@ class _CadastroListaCompraPageState extends State<CadastroListaCompraPage> {
         onChanged: (value) {
           setState(() {
             _editado = true;
-            produto.nome = value;
+            produto.descricao = value;
           });
         },
       ),
