@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:receita/business/lista_compra_business.dart';
-import 'package:receita/business/produto_business.dart';
-import 'package:receita/model/lista_compra.dart';
 
-import 'listacompra/cadastro_lista_compra_page.dart';
 import 'listacompra/lista_compra_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,7 +9,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  ProdutoBusiness produtoBusiness = ProdutoBusiness();
   ListaCompraBusiness listaCompraBusiness = ListaCompraBusiness();
   int _selectedIndex = 0;
 
@@ -48,20 +44,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _mostrarProdutoPage({ListaCompra listaCompra}) async {
-    final recProduto = await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => CadastroListaCompraPage(
-                  listaCompra
-                )));
-
-    if (recProduto != null) {
-      await produtoBusiness.salvarProduto(recProduto);
-      _atualizarListaCompras();
-    }
-  }
-
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
@@ -77,5 +59,4 @@ class _HomePageState extends State<HomePage> {
     ListaCompraPage(),
   ];
 
-  _atualizarListaCompras() {}
 }
